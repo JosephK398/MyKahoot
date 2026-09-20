@@ -1,9 +1,8 @@
-const fs = require('fs');
-const path = require('path');
 const crypto = require('crypto');
 
-const DATA_FILE = path.join(process.cwd(), 'server', 'data', 'quizzes.json');
-const SAMPLE_FILE = path.join(process.cwd(), 'server', 'data', 'sampleQuiz.json');
+// Import JSON at build time so Vercel's bundler includes the quiz data in the serverless function.
+const QUIZ_DATA = require('../server/data/quizzes.json');
+const SAMPLE_DATA = require('../server/data/sampleQuiz.json');
 let quizzes = null;
 let nextQuizId = 1;
 const games = globalThis.__quizblastGames || new Map();
@@ -11,14 +10,20 @@ globalThis.__quizblastGames = games;
 
 function loadQuizzes() {
   if (quizzes) return;
-  let loaded = [];
-  try { if (fs.existsSync(DATA_FILE)) loaded = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8')).quizzes || []; } catch (_) {}
-  if (!loaded.length) {
-    const sample = JSON.parse(fs.readFileSync(SAMPLE_FILE, 'utf8'));
-    loaded = [{ id: 1, title: sample.title, description: sample.description || '', questions: sample.questions || [], created_at: new Date().toISOString(), updated_at: new Date().toISOString() }];
+  const loaded = Array.isArray(QUIZ_DATA?.quizzes) ? QUIZ_DATA.quizzes : [];
+  if (loaded.length) {
+    quizzes = loaded.map(q => ({ ...q, questions: Array.isArray(q.questions) ? q.questions : [] }));
+  } else {
+    quizzes = [{
+      id: 1,
+      title: SAMPLE_DATA.title || 'QuizBlast Quiz',
+      description: SAMPLE_DATA.description || '',
+      questions: Array.isArray(SAMPLE_DATA.questions) ? SAMPLE_DATA.questions : [],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }];
   }
-  quizzes = loaded;
-  nextQuizId = Math.max(0, ...loaded.map(q => Number(q.id) || 0)) + 1;
+  nextQuizId = Math.max(0, ...quizzes.map(q => Number(q.id) || 0)) + 1;
 }
 function quizSummary(q) { return { id:q.id,title:q.title,description:q.description||'',question_count:(q.questions||[]).length,created_at:q.created_at,updated_at:q.updated_at }; }
 function json(res,status,body) { res.statusCode=status; res.setHeader('Content-Type','application/json; charset=utf-8'); res.end(JSON.stringify(body)); }

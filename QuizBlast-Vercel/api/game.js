@@ -1,0 +1,18 @@
+const {state,loadQuizzes,json,parseBody,token,pin,calcPoints,leaderboard,playerList,startQuestion,advance,stateFor}=require('./lib');
+module.exports=async function(req,res){
+ if(req.method==='OPTIONS') return res.status(204).end();
+ try{
+  if(req.method==='GET'){const u=new URL(req.url,'https://quizblast.local');const session=u.searchParams.get('token');if(!session)return json(res,401,{error:'Missing session token'});for(const game of state.games.values()){const s=stateFor(game,session);if(s)return json(res,200,s);}return json(res,404,{error:'Game session not found'});}
+  const body=await parseBody(req), action=body.action; const quizzes=loadQuizzes();
+  if(action==='create'){const quiz=quizzes.find(q=>Number(q.id)===Number(body.quizId));if(!quiz)return json(res,404,{error:'Quiz not found'});const p=pin(),t=token();state.games.set(p,{pin:p,quizId:quiz.id,quiz,hostToken:t,players:new Map(),status:'lobby',currentQuestion:-1,questionCounts:[0,0,0,0],nextAt:0,autoAdvance:false});return json(res,200,{token:t,pin:p,quizTitle:quiz.title,questionCount:quiz.questions.length});}
+  const game=state.games.get(String(body.pin));if(!game)return json(res,404,{error:'Game not found. Check your PIN.'});advance(game);
+  if(action==='join'){if(game.status!=='lobby')return json(res,400,{error:'This game has already started.'});const name=(body.name||'').trim();if(!name||name.length>20)return json(res,400,{error:'Name must be 1–20 characters.'});if([...game.players.values()].some(p=>p.name.toLowerCase()===name.toLowerCase()))return json(res,400,{error:'That name is already taken. Try another!'});const t=token();game.players.set(t,{token:t,name,score:0,answers:[],currentAnswer:null,answerResult:null});return json(res,200,{token:t,name,quizTitle:game.quiz.title});}
+  const session=body.token,isHost=session===game.hostToken,player=[...game.players.values()].find(p=>p.token===session);if(!isHost&&!player)return json(res,403,{error:'Invalid game session.'});
+  if(action==='start'&&isHost){if(!game.players.size)return json(res,400,{error:'Need at least one player to start!'});if(game.status!=='lobby')return json(res,400,{error:'Game has already started.'});game.status='countdown';game.nextAt=Date.now()+3000;return json(res,200,{ok:true});}
+  if(action==='next'&&isHost){if(game.status!=='leaderboard')return json(res,400,{error:'Question is not ready to advance.'});if(game.lastResult?.isLast){game.status='ended';game.endedAt=Date.now();return json(res,200,{ok:true});}game.autoAdvance=true;game.nextAt=Date.now();advance(game);return json(res,200,{ok:true});}
+  if(action==='end'&&isHost){game.status='ended';game.endedAt=Date.now();return json(res,200,{ok:true});}
+  if(action==='leave'&&player){game.players.delete(player.token);return json(res,200,{ok:true});}
+  if(action==='answer'&&player){advance(game);if(game.status!=='question'||player.currentAnswer!==null)return json(res,400,{error:'Answer is no longer accepted.'});const idx=Number(body.answerIndex),q=game.quiz.questions[game.currentQuestion];if(![0,1,2,3].includes(idx))return json(res,400,{error:'Invalid answer.'});const elapsed=(Date.now()-game.questionStartedAt)/1000,correct=idx===q.correctAnswer,points=correct?calcPoints(elapsed,q.timeLimit||20):0;player.currentAnswer=idx;player.score+=points;player.answers.push({questionIndex:game.currentQuestion,answerIndex:idx,correct,points,timeElapsed:Math.round(elapsed*10)/10});game.questionCounts[idx]++;return json(res,200,{ok:true});}
+  return json(res,400,{error:'Unknown game action.'});
+ }catch(e){console.error(e);return json(res,500,{error:e.message||'Game API error'});}
+};

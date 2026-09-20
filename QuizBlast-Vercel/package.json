@@ -1,0 +1,9 @@
+{
+  "name": "quizblast-vercel",
+  "private": true,
+  "version": "1.0.0",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "build": "npm --prefix client install && npm --prefix client run build"
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "title": "🌍 General Knowledge Blast",
+  "description": "A fun mix of science, history, geography and pop culture. Perfect for all ages!",
+  "questions": [
+    {
+      "text": "What is the largest planet in our solar system?",
+      "options": ["Saturn", "Jupiter", "Neptune", "Uranus"],
+      "correctAnswer": 1,
+      "timeLimit": 20
+    },
+    {
+      "text": "Which element has the chemical symbol 'Au'?",
+      "options": ["Silver", "Aluminum", "Gold", "Copper"],
+      "correctAnswer": 2,
+      "timeLimit": 15
+    },
+    {
+      "text": "Who painted the Mona Lisa?",
+      "options": ["Michelangelo", "Vincent van Gogh", "Pablo Picasso", "Leonardo da Vinci"],
+      "correctAnswer": 3,
+      "timeLimit": 20
+    },
+    {
+      "text": "In what year did World War II end?",
+      "options": ["1943", "1944", "1945", "1946"],
+      "correctAnswer": 2,
+      "timeLimit": 20
+    },
+    {
+      "text": "What is the capital city of Japan?",
+      "options": ["Beijing", "Seoul", "Bangkok", "Tokyo"],
+      "correctAnswer": 3,
+      "timeLimit": 15
+    },
+    {
+      "text": "How many sides does a hexagon have?",
+      "options": ["5", "6", "7", "8"],
+      "correctAnswer": 1,
+      "timeLimit": 10
+    },
+    {
+      "text": "Which planet is known as the Red Planet?",
+      "options": ["Venus", "Mars", "Jupiter", "Saturn"],
+      "correctAnswer": 1,
+      "timeLimit": 15
+    },
+    {
+      "text": "What is the fastest land animal?",
+      "options": ["Lion", "Leopard", "Cheetah", "Gazelle"],
+      "correctAnswer": 2,
+      "timeLimit": 15
+    },
+    {
+      "text": "Who wrote 'Romeo and Juliet'?",
+      "options": ["Charles Dickens", "William Shakespeare", "Jane Austen", "Mark Twain"],
+      "correctAnswer": 1,
+      "timeLimit": 20
+    },
+    {
+      "text": "What does 'HTTP' stand for?",
+      "options": [
+        "HyperText Transfer Protocol",
+        "High Traffic Text Processing",
+        "Hyper Transfer Text Program",
+        "HyperText Transmission Process"
+      ],
+      "correctAnswer": 0,
+      "timeLimit": 20
+    }
+  ]
+}

@@ -31,3 +31,7 @@ Therefore:
 The frontend replaces Socket.IO with HTTP commands plus 700ms polling so it can run as a Vercel-only application.
 
 For durable production multiplayer, a shared persistent store is technically required. This version intentionally does not add one.
+
+## Separate Host and Player Links
+
+Use `/host` for the host dashboard and `/join` for players. Share only the `/join` URL with players.

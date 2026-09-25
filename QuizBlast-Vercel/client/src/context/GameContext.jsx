@@ -13,25 +13,9 @@ const GameContext = createContext(null);
 
 export function GameProvider({ children }) {
   /* ── View / routing ──────────────────────────────────────────────────────── */
-  const initialPath = typeof window !== 'undefined' ? window.location.pathname : '/';
-  const initialView = initialPath === '/host' ? 'host-dashboard' : initialPath === '/join' ? 'player-join' : 'home';
-  const [view, _setView]   = useState(initialView);
-  const viewRef            = useRef(initialView);
-
-  // Keep the two shareable entry URLs stable: /host for the host and /join for players.
-  // Internal game screens stay on the same role URL so a shared link never exposes the other role.
-  const setView = useCallback((v) => {
-    viewRef.current = v;
-    _setView(v);
-    if (typeof window !== 'undefined') {
-      const hostViews = new Set(['host-dashboard', 'host-create-quiz', 'host-edit-quiz', 'host-lobby', 'host-game']);
-      const playerViews = new Set(['player-join', 'player-lobby', 'player-game', 'player-result']);
-      const target = hostViews.has(v) ? '/host' : playerViews.has(v) ? '/join' : v === 'home' || v === 'final' ? '/' : window.location.pathname;
-      if (window.location.pathname !== target) {
-        window.history.pushState({}, '', target);
-      }
-    }
-  }, []);
+  const [view, _setView]   = useState('home');
+  const viewRef            = useRef('home');
+  const setView            = useCallback((v) => { viewRef.current = v; _setView(v); }, []);
 
   /* ── Role tracking (needed inside socket handlers) ───────────────────────── */
   const [role, _setRole]   = useState(null);        // 'host' | 'player' | null
